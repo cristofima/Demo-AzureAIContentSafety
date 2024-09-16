@@ -1,0 +1,57 @@
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <app-post-create (postCreated)="onPostCreated($event)"></app-post-create>
+    </div>
+  </div>
+  <div class="row" *ngFor="let post of posts">
+    <div class="col-12">
+      <div class="card mb-3">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <div class="d-flex align-items-center">
+            <img
+              src="assets/user-avatar.png"
+              alt="User Avatar"
+              class="avatar mr-2"
+            />
+            <div>
+              <p class="mb-0 font-weight-bold">User</p>
+              <p class="mb-0 text-muted">
+                {{ post.createdAt | date : "medium" }}
+              </p>
+            </div>
+          </div>
+          <button
+            class="btn btn-danger btn-sm"
+            (click)="deletePost(post)"
+            [disabled]="post.isDeleting"
+          >
+            X
+          </button>
+        </div>
+        <div class="card-body">
+          <p class="card-text">{{ post.text }}</p>
+          <div
+            class="image-container"
+            *ngIf="post.imagePath"
+            style="max-width: 600px"
+          >
+            <img
+              [src]="
+                'https://democodigofacilitoai.blob.core.windows.net/images/' +
+                post.imagePath
+              "
+              [class.blur]="post.imageIsHarmful"
+              class="img-fluid rounded"
+            />
+            <button class="toggle-blur-btn" (click)="toggleBlur(post)">
+              {{ post.imageIsHarmful ? "Show image" : "Hide image" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

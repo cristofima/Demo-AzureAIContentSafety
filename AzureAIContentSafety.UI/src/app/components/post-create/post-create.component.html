@@ -1,0 +1,24 @@
+<div class="card mb-3">
+  <div class="card-body">
+    <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+      <textarea
+        formControlName="text"
+        class="form-control mb-3"
+        placeholder="Write your post"
+      ></textarea>
+      <input
+        type="file"
+        #imageInput
+        class="form-control-file mb-3"
+        (change)="onFileSelected($event)"
+      />
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="!formGroup.valid || isLoading"
+      >
+        Submit
+      </button>
+    </form>
+  </div>
+</div>

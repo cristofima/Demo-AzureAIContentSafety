@@ -1,0 +1,25 @@
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.image-container img.blur {
+  filter: blur(20px);
+  transition: filter 0.3s ease;
+}
+.toggle-blur-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
