@@ -38,7 +38,7 @@ export class PostsComponent implements OnInit {
       await lastValueFrom(this.apiService.deletePost(post.id));
       this.posts = this.posts.filter(p => p.id !== post.id);
     } catch (error) {
-      console.log('Error:', error);
+
     } finally {
       post.isDeleting = false;
     }

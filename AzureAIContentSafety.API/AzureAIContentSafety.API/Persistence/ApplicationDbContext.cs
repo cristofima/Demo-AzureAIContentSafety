@@ -7,7 +7,8 @@ namespace AzureAIContentSafety.API.Persistence
     {
         public DbSet<Post> Posts { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -15,58 +16,39 @@ namespace AzureAIContentSafety.API.Persistence
             {
                 entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.Id)      
-                    .IsRequired()
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).IsRequired().ValueGeneratedOnAdd();
 
-                entity.Property(e => e.Text)
-                    .HasMaxLength(1000)
-                    .IsRequired();
+                entity.Property(e => e.Text).HasMaxLength(1000).IsRequired(false);
 
-                entity.Property(e => e.ImagePath)
-                    .IsRequired(false);
+                entity.Property(e => e.ImagePath).IsRequired(false);
 
-                entity.Property(e => e.TextRequiresModeration)
-                    .IsRequired();
+                entity.Property(e => e.TextRequiresModeration).HasDefaultValue(false).IsRequired();
 
-                entity.Property(e => e.TextIsHarmful)
-                   .IsRequired();
+                entity.Property(e => e.TextIsHarmful).HasDefaultValue(false).IsRequired();
 
-                entity.Property(e => e.TextHateSeverity)
-                   .IsRequired();
+                entity.Property(e => e.TextHateSeverity).HasDefaultValue(0).IsRequired();
 
-                entity.Property(e => e.TextSelfHarmSeverity)
-                   .IsRequired();
+                entity.Property(e => e.TextSelfHarmSeverity).HasDefaultValue(0).IsRequired();
 
-                entity.Property(e => e.TextSexualSeverity)
-                   .IsRequired();
+                entity.Property(e => e.TextSexualSeverity).HasDefaultValue(0).IsRequired();
 
-                entity.Property(e => e.TextViolenceSeverity)
-                   .IsRequired();
+                entity.Property(e => e.TextViolenceSeverity).HasDefaultValue(0).IsRequired();
 
-                entity.Property(e => e.ImageRequiresModeration)
-                   .IsRequired();
+                entity.Property(e => e.ImageRequiresModeration).HasDefaultValue(false).IsRequired();
 
-                entity.Property(e => e.ImageIsHarmful)
-                   .IsRequired();
+                entity.Property(e => e.ImageIsHarmful).HasDefaultValue(false).IsRequired();
 
-                entity.Property(e => e.ImageHateSeverity)
-                   .IsRequired();
+                entity.Property(e => e.ImageHateSeverity).HasDefaultValue(0).IsRequired();
 
-                entity.Property(e => e.ImageSelfHarmSeverity)
-                   .IsRequired();
+                entity.Property(e => e.ImageSelfHarmSeverity).HasDefaultValue(0).IsRequired();
 
-                entity.Property(e => e.ImageSexualSeverity)
-                   .IsRequired();
+                entity.Property(e => e.ImageSexualSeverity).HasDefaultValue(0).IsRequired();
 
-                entity.Property(e => e.ImageViolenceSeverity)
-                   .IsRequired();
+                entity.Property(e => e.ImageViolenceSeverity).HasDefaultValue(0).IsRequired();
 
-                entity.Property(e => e.CreatedAt)
-                   .IsRequired();
+                entity.Property(e => e.CreatedAt).IsRequired();
 
-                entity.Property(e => e.LastUpdatedAt)
-                   .IsRequired(false);
+                entity.Property(e => e.LastUpdatedAt).IsRequired(false);
             });
         }
     }

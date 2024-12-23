@@ -1,12 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace AzureAIContentSafety.API.DTO.Requests;
 
-namespace AzureAIContentSafety.API.DTO.Requests
+public record PostRequest
 {
-    public class PostRequest
-    {
-        [Required]
-        [StringLength(1000, MinimumLength = 1)]
-        public string Text { get; set; }
-        public IFormFile Image { get; set; }
-    }
+    public string Text { get; init; }
+    public IFormFile Image { get; init; }
 }

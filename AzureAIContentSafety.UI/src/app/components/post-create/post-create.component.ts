@@ -1,8 +1,9 @@
-import { Post } from '@/models/post.interface';
-import { ApiService } from '@/services/api.service';
 import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
+import { Post } from '@/models/post.interface';
+import { ApiService } from '@/services/api.service';
+import { atLeastOneFieldValidator } from '@/validators/at-least-one-field.validator';
 
 @Component({
   selector: 'app-post-create',
@@ -27,8 +28,11 @@ export class PostCreateComponent implements OnInit {
   ngOnInit(): void {
     this.formGroup = this.formBuilder.group(
       {
-        text: new FormControl('', Validators.compose([Validators.required, Validators.minLength(10), Validators.maxLength(1000)])),
+        text: new FormControl('', Validators.compose([Validators.minLength(10), Validators.maxLength(1000)])),
         image: [null]
+      },
+      {
+        validators: atLeastOneFieldValidator(['text', 'image'])
       }
     );
   }
@@ -54,14 +58,14 @@ export class PostCreateComponent implements OnInit {
     try {
       const post = await lastValueFrom(this.apiService.createPost(formData));
       this.postCreated.emit(post);
-    } catch (error) {
-      console.log('Error:', error);
-    } finally {
-      this.isLoading = false;
       this.formGroup.reset();
       if (this.imageInput) {
         this.imageInput.nativeElement.value = '';
       }
+    } catch (error) {
+
+    } finally {
+      this.isLoading = false;
     }
   }
 }
