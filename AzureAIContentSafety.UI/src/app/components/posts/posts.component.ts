@@ -4,6 +4,8 @@ import { Component, OnInit } from '@angular/core';
 import { Post } from '@/models/post.interface';
 import { ApiService } from '@/services/api.service';
 import { PostCreateComponent } from '../post-create/post-create.component';
+import { environment } from '../../../environments/environment';
+import { ErrorUtil } from '@/utils/error.util';
 
 @Component({
   selector: 'app-posts',
@@ -15,10 +17,14 @@ import { PostCreateComponent } from '../post-create/post-create.component';
 export class PostsComponent implements OnInit {
 
   posts: Post[] = [];
+  storageBaseUrl = environment.storageBaseUrl;
+  showErrorMessage = false;
+  errors: string[] = [];
 
   constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
+    this.showErrorMessage = false;
     this.apiService.getPosts().subscribe(posts => {
       this.posts = posts;
     });
@@ -32,13 +38,23 @@ export class PostsComponent implements OnInit {
     post.imageIsHarmful = !post.imageIsHarmful;
   }
 
+  setErrors(errors: string[]) {
+    this.errors = errors;
+    this.showErrorMessage = this.errors.length > 0;
+  }
+
+  clearErrors() {
+    this.errors = [];
+    this.showErrorMessage = false;
+  }
+
   async deletePost(post: Post) {
     try {
       post.isDeleting = true;
       await lastValueFrom(this.apiService.deletePost(post.id));
       this.posts = this.posts.filter(p => p.id !== post.id);
-    } catch (error) {
-
+    } catch (ex: any) {
+      this.setErrors(ErrorUtil.getErrors(ex.error.errors));
     } finally {
       post.isDeleting = false;
     }

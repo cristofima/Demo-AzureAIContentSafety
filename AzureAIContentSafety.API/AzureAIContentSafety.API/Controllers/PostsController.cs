@@ -19,47 +19,29 @@ public class PostsController(IPostRepository postRepository) : ControllerBase
         return Ok(this.postRepository.GetAll());
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PostResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult GetById(string id)
     {
-        try
-        {
-            return Ok(this.postRepository.GetById(id));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(this.postRepository.GetById(id));
     }
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(PostResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromForm] PostRequest request)
     {
-        try
-        {
-            var post = await this.postRepository.AddAsync(request);
-            return Ok(post);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var post = await this.postRepository.AddAsync(request);
+        return Ok(post);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(string id)
     {
-        try
-        {
-            await this.postRepository.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await this.postRepository.DeleteAsync(id);
+        return NoContent();
     }
 }

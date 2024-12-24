@@ -1,7 +1,27 @@
 <div class="container">
+  <div
+    *ngIf="showErrorMessage"
+    class="alert alert-danger alert-dismissible fade show"
+    role="alert"
+  >
+    <ul>
+      <li *ngFor="let error of errors">{{ error }}</li>
+    </ul>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+      (click)="clearErrors()"
+    ></button>
+  </div>
+
   <div class="row">
     <div class="col-12">
-      <app-post-create (postCreated)="onPostCreated($event)"></app-post-create>
+      <app-post-create
+        (postCreated)="onPostCreated($event)"
+        (errors)="setErrors($event)"
+      ></app-post-create>
     </div>
   </div>
   <div class="row" *ngFor="let post of posts">
@@ -10,7 +30,7 @@
         <div
           class="card-header d-flex justify-content-between align-items-center"
         >
-          <div class="d-flex align-items-center">
+          <div class="d-flex gap-2 align-items-center">
             <img
               src="assets/user-avatar.png"
               alt="User Avatar"
@@ -39,10 +59,7 @@
             style="max-width: 600px"
           >
             <img
-              [src]="
-                'https://socialnetworkcc.blob.core.windows.net/images/' +
-                post.imagePath
-              "
+              [src]="storageBaseUrl + '/images/' + post.imagePath"
               [class.blur]="post.imageIsHarmful"
               class="img-fluid rounded"
             />

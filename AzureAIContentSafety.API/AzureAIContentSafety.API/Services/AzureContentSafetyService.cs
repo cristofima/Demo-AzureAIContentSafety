@@ -20,11 +20,19 @@ public class AzureContentSafetyService : IAzureContentSafetyService
 
     public async Task<AnalyzeTextResult> AnalyzeTextAsync(string text)
     {
-        return await this.contentSafetyClient.AnalyzeTextAsync(text);
+        var request = new AnalyzeTextOptions(text)
+        {
+            OutputType = AnalyzeTextOutputType.EightSeverityLevels,
+        };
+
+        return await this.contentSafetyClient.AnalyzeTextAsync(request);
     }
 
     public async Task<AnalyzeImageResult> AnalyzeImageAsync(Stream imageStream)
     {
-        return await this.contentSafetyClient.AnalyzeImageAsync(BinaryData.FromStream(imageStream));
+        var image = new ContentSafetyImageData(await BinaryData.FromStreamAsync(imageStream));
+        var request = new AnalyzeImageOptions(image);
+
+        return await this.contentSafetyClient.AnalyzeImageAsync(request);
     }
 }

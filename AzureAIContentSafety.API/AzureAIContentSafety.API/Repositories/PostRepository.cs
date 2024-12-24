@@ -2,6 +2,7 @@
 using AzureAIContentSafety.API.DTO.Requests;
 using AzureAIContentSafety.API.DTO.Responses;
 using AzureAIContentSafety.API.Entities;
+using AzureAIContentSafety.API.Exceptions;
 using AzureAIContentSafety.API.Interfaces;
 using AzureAIContentSafety.API.Persistence;
 using AzureAIContentSafety.API.Utils;
@@ -33,9 +34,20 @@ public class PostRepository : IPostRepository
     {
         var post = new Post() { Text = request.Text, CreatedAt = DateTime.UtcNow };
 
-        if (!string.IsNullOrWhiteSpace(request.Text))
+        await this.AnalyzeTextAsync(post);
+        await this.AnalyzeImageAsync(post, request);
+
+        await this.context.Posts.AddAsync(post);
+        await this.context.SaveChangesAsync();
+
+        return this.mapper.Map<PostResponse>(post);
+    }
+
+    private async Task AnalyzeTextAsync(Post post)
+    {
+        if (!string.IsNullOrWhiteSpace(post.Text))
         {
-            var textResult = await this.azureContentSafetyService.AnalyzeTextAsync(request.Text);
+            var textResult = await this.azureContentSafetyService.AnalyzeTextAsync(post.Text);
             if (textResult != null)
             {
                 (
@@ -45,22 +57,54 @@ public class PostRepository : IPostRepository
                     post.TextViolenceSeverity
                 ) = SeverityEvaluator.Evaluate(textResult.CategoriesAnalysis);
 
-                var maxTextSeverity = new[]
+                var severities = new[]
                 {
                     post.TextHateSeverity,
                     post.TextSelfHarmSeverity,
                     post.TextSexualSeverity,
                     post.TextViolenceSeverity,
-                }.Max();
+                };
 
-                post.TextIsHarmful = maxTextSeverity >= 4;
+                var maxTextSeverity = severities.Max();
+
+                post.TextIsHarmful = maxTextSeverity >= 3;
                 post.TextRequiresModeration = maxTextSeverity >= 5;
+
+                if (post.TextRequiresModeration)
+                {
+                    var index = severities.ToList().FindIndex(i => i == maxTextSeverity);
+                    var severityName = index switch
+                    {
+                        0 => "Hate",
+                        1 => "Self-Harm",
+                        2 => "Sexual",
+                        3 => "Violence",
+                        _ => string.Empty,
+                    };
+
+                    throw new HarmfulContentException(
+                        "Post requires moderation.",
+                        new()
+                        {
+                            {
+                                "Text",
+
+                                [
+                                    $"Requires moderation in {severityName} content.",
+                                    $"It has a severity level of {maxTextSeverity} out of 7.",
+                                ]
+                            },
+                        }
+                    );
+                }
             }
         }
+    }
 
+    private async Task AnalyzeImageAsync(Post post, PostRequest request)
+    {
         if (request.Image != null)
         {
-            post.ImagePath = await this.azureStorageService.UploadAsync(request.Image);
             var memoryStream = await StreamUtil.ToMemoryStreamAsync(request.Image.OpenReadStream());
             var imageResult = await this.azureContentSafetyService.AnalyzeImageAsync(memoryStream);
             if (imageResult != null)
@@ -72,38 +116,67 @@ public class PostRepository : IPostRepository
                     post.ImageViolenceSeverity
                 ) = SeverityEvaluator.Evaluate(imageResult.CategoriesAnalysis);
 
-                var maxImageSeverity = new[]
+                var severities = new[]
                 {
                     post.ImageHateSeverity,
                     post.ImageSelfHarmSeverity,
                     post.ImageSexualSeverity,
                     post.ImageViolenceSeverity,
-                }.Max();
+                };
 
-                post.ImageIsHarmful = maxImageSeverity >= 4;
-                post.ImageRequiresModeration = maxImageSeverity >= 5;
+                var maxImageSeverity = severities.Max();
+
+                post.ImageIsHarmful = maxImageSeverity >= 2;
+                post.ImageRequiresModeration = maxImageSeverity >= 4;
+
+                if (post.ImageRequiresModeration)
+                {
+                    var index = severities.ToList().FindIndex(i => i == maxImageSeverity);
+                    var severityName = index switch
+                    {
+                        0 => "Hate",
+                        1 => "Self-Harm",
+                        2 => "Sexual",
+                        3 => "Violence",
+                        _ => string.Empty,
+                    };
+
+                    throw new HarmfulContentException(
+                        "Post requires moderation.",
+                        new()
+                        {
+                            {
+                                "Image",
+
+                                [
+                                    $"Requires moderation in {severityName} content.",
+                                    $"It has a severity level of {maxImageSeverity} out of 6.",
+                                ]
+                            },
+                        }
+                    );
+                }
+
+                post.ImagePath = await this.azureStorageService.UploadAsync(request.Image);
             }
         }
-
-        await this.context.Posts.AddAsync(post);
-        await this.context.SaveChangesAsync();
-
-        return this.mapper.Map<PostResponse>(post);
     }
 
     public async Task DeleteAsync(string id)
     {
         var post = await this.context.Posts.FindAsync(id);
-        if (post != null)
+        if (post is null)
         {
-            if (!string.IsNullOrEmpty(post.ImagePath))
-            {
-                await this.azureStorageService.DeleteAsync(post.ImagePath);
-            }
-
-            this.context.Posts.Remove(post);
-            await this.context.SaveChangesAsync();
+            throw new NotFoundException($"Post with ID {id} not found.");
         }
+
+        if (!string.IsNullOrEmpty(post.ImagePath))
+        {
+            await this.azureStorageService.DeleteAsync(post.ImagePath);
+        }
+
+        this.context.Posts.Remove(post);
+        await this.context.SaveChangesAsync();
     }
 
     public List<PostResponse> GetAll()
@@ -119,11 +192,18 @@ public class PostRepository : IPostRepository
     public PostResponse GetById(string id)
     {
         var post = this.context.Posts.Find(id);
+        if (post is null)
+        {
+            throw new NotFoundException($"Post with ID {id} not found.");
+        }
+
         if (post is { TextRequiresModeration: false, ImageRequiresModeration: false })
         {
             return this.mapper.Map<PostResponse>(post);
         }
-
-        return null;
+        else
+        {
+            throw new HarmfulContentException("Post requires moderation.");
+        }
     }
 }

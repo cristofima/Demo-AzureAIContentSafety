@@ -1,5 +1,6 @@
 using System.Reflection;
 using AzureAIContentSafety.API.Interfaces;
+using AzureAIContentSafety.API.Middlewares;
 using AzureAIContentSafety.API.Persistence;
 using AzureAIContentSafety.API.Repositories;
 using AzureAIContentSafety.API.Services;
@@ -40,6 +41,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors(options =>
 {
