@@ -4,9 +4,11 @@ using AzureAIContentSafety.API.DTO.Responses;
 using AzureAIContentSafety.API.Entities;
 using AzureAIContentSafety.API.Exceptions;
 using AzureAIContentSafety.API.Interfaces;
+using AzureAIContentSafety.API.Options;
 using AzureAIContentSafety.API.Persistence;
 using AzureAIContentSafety.API.Utils;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace AzureAIContentSafety.API.Repositories;
 
@@ -14,18 +16,21 @@ public class PostRepository : IPostRepository
 {
     private readonly IAzureStorageService azureStorageService;
     private readonly IAzureContentSafetyService azureContentSafetyService;
+    private readonly AzureAIContentSafetyOptions azureAIContentSafetyOptions;
     private readonly ApplicationDbContext context;
     private readonly IMapper mapper;
 
     public PostRepository(
         IAzureStorageService azureStorageService,
         IAzureContentSafetyService azureContentSafetyService,
+        IOptions<AzureAIContentSafetyOptions> options,
         ApplicationDbContext context,
         IMapper mapper
     )
     {
         this.azureStorageService = azureStorageService;
         this.azureContentSafetyService = azureContentSafetyService;
+        this.azureAIContentSafetyOptions = options.Value;
         this.context = context;
         this.mapper = mapper;
     }
@@ -67,8 +72,10 @@ public class PostRepository : IPostRepository
 
                 var maxTextSeverity = severities.Max();
 
-                post.TextIsHarmful = maxTextSeverity >= 3;
-                post.TextRequiresModeration = maxTextSeverity >= 5;
+                post.TextIsHarmful =
+                    maxTextSeverity >= azureAIContentSafetyOptions.TextSeverityThreshold.Blur;
+                post.TextRequiresModeration =
+                    maxTextSeverity >= azureAIContentSafetyOptions.TextSeverityThreshold.Reject;
 
                 if (post.TextRequiresModeration)
                 {
@@ -90,7 +97,7 @@ public class PostRepository : IPostRepository
                                 "Text",
 
                                 [
-                                    $"Requires moderation in {severityName} content.",
+                                    $"Text requires moderation in {severityName} content.",
                                     $"It has a severity level of {maxTextSeverity} out of 7.",
                                 ]
                             },
@@ -126,8 +133,10 @@ public class PostRepository : IPostRepository
 
                 var maxImageSeverity = severities.Max();
 
-                post.ImageIsHarmful = maxImageSeverity >= 2;
-                post.ImageRequiresModeration = maxImageSeverity >= 4;
+                post.ImageIsHarmful =
+                    maxImageSeverity >= azureAIContentSafetyOptions.ImageSeverityThreshold.Blur;
+                post.ImageRequiresModeration =
+                    maxImageSeverity >= azureAIContentSafetyOptions.ImageSeverityThreshold.Reject;
 
                 if (post.ImageRequiresModeration)
                 {
@@ -149,7 +158,7 @@ public class PostRepository : IPostRepository
                                 "Image",
 
                                 [
-                                    $"Requires moderation in {severityName} content.",
+                                    $"Image requires moderation in {severityName} content.",
                                     $"It has a severity level of {maxImageSeverity} out of 6.",
                                 ]
                             },

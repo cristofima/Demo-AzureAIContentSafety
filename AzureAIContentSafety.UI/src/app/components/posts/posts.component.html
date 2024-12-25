@@ -53,11 +53,7 @@
         </div>
         <div class="card-body">
           <p class="card-text">{{ post.text }}</p>
-          <div
-            class="image-container"
-            *ngIf="post.imagePath"
-            style="max-width: 600px"
-          >
+          <div class="image-container" *ngIf="post.imagePath">
             <img
               [src]="storageBaseUrl + '/images/' + post.imagePath"
               [class.blur]="post.imageIsHarmful"

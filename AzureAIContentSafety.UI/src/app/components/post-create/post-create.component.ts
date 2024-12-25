@@ -30,7 +30,7 @@ export class PostCreateComponent implements OnInit {
   ngOnInit(): void {
     this.formGroup = this.formBuilder.group(
       {
-        text: new FormControl('', Validators.compose([Validators.minLength(5), Validators.maxLength(1000)])),
+        text: new FormControl('', Validators.compose([Validators.minLength(10), Validators.maxLength(1000)])),
         image: [null]
       },
       {

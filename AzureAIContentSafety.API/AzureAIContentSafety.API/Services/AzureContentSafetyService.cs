@@ -1,22 +1,16 @@
 ﻿using Azure;
 using Azure.AI.ContentSafety;
 using AzureAIContentSafety.API.Interfaces;
+using AzureAIContentSafety.API.Options;
+using Microsoft.Extensions.Options;
 
 namespace AzureAIContentSafety.API.Services;
 
-public class AzureContentSafetyService : IAzureContentSafetyService
+public class AzureContentSafetyService(IOptions<AzureAIContentSafetyOptions> options)
+    : IAzureContentSafetyService
 {
-    private readonly ContentSafetyClient contentSafetyClient;
-
-    public AzureContentSafetyService(IConfiguration configuration)
-    {
-        var endpoint = configuration.GetValue<string>("AzureAIContentSafety:endpoint");
-        var apiKey = configuration.GetValue<string>("AzureAIContentSafety:apiKey");
-        this.contentSafetyClient = new ContentSafetyClient(
-            new Uri(endpoint),
-            new AzureKeyCredential(apiKey)
-        );
-    }
+    private readonly ContentSafetyClient _contentSafetyClient =
+        new(new Uri(options.Value.Endpoint), new AzureKeyCredential(options.Value.ApiKey));
 
     public async Task<AnalyzeTextResult> AnalyzeTextAsync(string text)
     {
@@ -25,7 +19,7 @@ public class AzureContentSafetyService : IAzureContentSafetyService
             OutputType = AnalyzeTextOutputType.EightSeverityLevels,
         };
 
-        return await this.contentSafetyClient.AnalyzeTextAsync(request);
+        return await _contentSafetyClient.AnalyzeTextAsync(request);
     }
 
     public async Task<AnalyzeImageResult> AnalyzeImageAsync(Stream imageStream)
@@ -33,6 +27,6 @@ public class AzureContentSafetyService : IAzureContentSafetyService
         var image = new ContentSafetyImageData(await BinaryData.FromStreamAsync(imageStream));
         var request = new AnalyzeImageOptions(image);
 
-        return await this.contentSafetyClient.AnalyzeImageAsync(request);
+        return await _contentSafetyClient.AnalyzeImageAsync(request);
     }
 }

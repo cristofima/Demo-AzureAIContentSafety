@@ -1,25 +1,20 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using AzureAIContentSafety.API.Interfaces;
+using AzureAIContentSafety.API.Options;
+using Microsoft.Extensions.Options;
 
 namespace AzureAIContentSafety.API.Services;
 
-public class AzureStorageService : IAzureStorageService
+public class AzureStorageService(IOptions<AzureStorageOptions> options) : IAzureStorageService
 {
-    private readonly string azureStorageConnectionString;
-
-    public AzureStorageService(IConfiguration configuration)
-    {
-        this.azureStorageConnectionString = configuration.GetValue<string>(
-            "AzureStorageConnectionString"
-        );
-    }
+    private readonly AzureStorageOptions _azureStorageOptions = options.Value;
 
     public async Task DeleteAsync(string blobFilename)
     {
         var blobContainerClient = new BlobContainerClient(
-            this.azureStorageConnectionString,
-            "images"
+            _azureStorageOptions.ConnectionString,
+            _azureStorageOptions.BlobContainerName
         );
         var blobClient = blobContainerClient.GetBlobClient(blobFilename);
 
@@ -38,8 +33,8 @@ public class AzureStorageService : IAzureStorageService
         }
 
         var blobContainerClient = new BlobContainerClient(
-            this.azureStorageConnectionString,
-            "images"
+            _azureStorageOptions.ConnectionString,
+            _azureStorageOptions.BlobContainerName
         );
 
         // Get a reference to the blob just uploaded from the API in a container from configuration settings
@@ -50,7 +45,11 @@ public class AzureStorageService : IAzureStorageService
 
         var blobClient = blobContainerClient.GetBlobClient(blobName);
 
-        var blobHttpHeader = new BlobHttpHeaders { ContentType = file.ContentType };
+        var blobHttpHeader = new BlobHttpHeaders
+        {
+            ContentType = file.ContentType,
+            CacheControl = _azureStorageOptions.BlobCacheControl,
+        };
 
         // Open a stream for the file we want to upload
         await using var stream = file.OpenReadStream();
