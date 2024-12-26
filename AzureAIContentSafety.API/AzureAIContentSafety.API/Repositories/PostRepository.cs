@@ -37,7 +37,7 @@ public class PostRepository : IPostRepository
 
     public async Task<PostResponse> AddAsync(PostRequest request)
     {
-        var post = new Post() { Text = request.Text, CreatedAt = DateTime.UtcNow };
+        var post = new Post() { Text = request.Text, CreatedAt = DateTimeOffset.UtcNow };
 
         await this.AnalyzeTextAsync(post);
         await this.AnalyzeImageAsync(post, request);

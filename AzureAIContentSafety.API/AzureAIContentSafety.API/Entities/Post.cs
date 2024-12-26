@@ -17,7 +17,7 @@
         public int ImageSelfHarmSeverity { get; set; }
         public int ImageSexualSeverity { get; set; }
         public int ImageViolenceSeverity { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? LastUpdatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset? LastUpdatedAt { get; set; }
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AzureAIContentSafety.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241223183849_InitialCreate")]
+    [Migration("20241226132801_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -31,8 +31,8 @@ namespace AzureAIContentSafety.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("ImageHateSeverity")
                         .ValueGeneratedOnAdd()
@@ -67,8 +67,8 @@ namespace AzureAIContentSafety.API.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<DateTime?>("LastUpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("LastUpdatedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Text")
                         .HasMaxLength(1000)

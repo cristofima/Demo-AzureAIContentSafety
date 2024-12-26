@@ -30,8 +30,8 @@ namespace AzureAIContentSafety.API.Migrations
                     ImageSelfHarmSeverity = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     ImageSexualSeverity = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     ImageViolenceSeverity = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastUpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastUpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {

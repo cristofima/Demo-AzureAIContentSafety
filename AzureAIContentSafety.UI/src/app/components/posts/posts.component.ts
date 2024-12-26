@@ -4,7 +4,6 @@ import { Component, OnInit } from '@angular/core';
 import { Post } from '@/models/post.interface';
 import { ApiService } from '@/services/api.service';
 import { PostCreateComponent } from '../post-create/post-create.component';
-import { environment } from '../../../environments/environment';
 import { ErrorUtil } from '@/utils/error.util';
 
 @Component({
@@ -17,7 +16,6 @@ import { ErrorUtil } from '@/utils/error.util';
 export class PostsComponent implements OnInit {
 
   posts: Post[] = [];
-  storageBaseUrl = environment.storageBaseUrl;
   showErrorMessage = false;
   errors: string[] = [];
 
@@ -35,7 +33,7 @@ export class PostsComponent implements OnInit {
   }
 
   toggleBlur(post: Post) {
-    post.imageIsHarmful = !post.imageIsHarmful;
+    post.imageIsBlurred = !post.imageIsBlurred;
   }
 
   setErrors(errors: string[]) {

@@ -4,6 +4,7 @@ export interface Post {
   imagePath: string;
   textIsHarmful: boolean;
   imageIsHarmful: boolean;
+  imageIsBlurred: boolean;
   createdAt: Date;
   isDeleting: boolean;
 }

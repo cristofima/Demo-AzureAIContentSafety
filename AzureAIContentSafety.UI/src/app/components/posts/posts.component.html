@@ -55,12 +55,16 @@
           <p class="card-text">{{ post.text }}</p>
           <div class="image-container" *ngIf="post.imagePath">
             <img
-              [src]="storageBaseUrl + '/images/' + post.imagePath"
-              [class.blur]="post.imageIsHarmful"
+              [src]="post.imagePath"
+              [class.blur]="post.imageIsBlurred"
               class="img-fluid rounded"
             />
-            <button class="toggle-blur-btn" (click)="toggleBlur(post)">
-              {{ post.imageIsHarmful ? "Show image" : "Hide image" }}
+            <button
+              *ngIf="post.imageIsHarmful"
+              class="toggle-blur-btn"
+              (click)="toggleBlur(post)"
+            >
+              {{ post.imageIsBlurred ? "Show image" : "Hide image" }}
             </button>
           </div>
         </div>

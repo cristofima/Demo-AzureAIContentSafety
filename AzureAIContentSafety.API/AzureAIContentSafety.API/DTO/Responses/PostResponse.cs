@@ -7,6 +7,6 @@
         public string ImagePath { get; set; }
         public bool TextIsHarmful { get; set; }
         public bool ImageIsHarmful { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }
