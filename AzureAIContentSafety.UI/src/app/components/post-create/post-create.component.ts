@@ -30,7 +30,7 @@ export class PostCreateComponent implements OnInit {
   ngOnInit(): void {
     this.formGroup = this.formBuilder.group(
       {
-        text: new FormControl('', Validators.compose([Validators.minLength(10), Validators.maxLength(1000)])),
+        text: new FormControl(null, Validators.compose([Validators.minLength(10), Validators.maxLength(1000)])),
         image: [null]
       },
       {
@@ -52,7 +52,11 @@ export class PostCreateComponent implements OnInit {
     this.isLoading = true;
     this.errors.emit([]);
     const formData = new FormData();
-    formData.append('text', this.formGroup.get('text')?.value);
+    const text = this.formGroup.get('text')?.value;
+    if (text) {
+      formData.append('text', text);
+    }
+
     const file = this.formGroup.get('image')?.value;
     if (file) {
       formData.append('image', file);
