@@ -5,7 +5,7 @@ namespace AzureAIContentSafety.API.Interfaces
 {
     public interface IPostRepository
     {
-        List<PostResponse> GetAll();
+        Task<PaginatedList<PostResponse>> GetAll(int pageNumber, int pageSize);
         PostResponse GetById(string id);
         Task<PostResponse> AddAsync(PostRequest request);
         Task DeleteAsync(string id);

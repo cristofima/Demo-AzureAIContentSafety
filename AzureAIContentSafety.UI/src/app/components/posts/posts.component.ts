@@ -5,11 +5,12 @@ import { Post } from '@/models/post.interface';
 import { ApiService } from '@/services/api.service';
 import { PostCreateComponent } from '../post-create/post-create.component';
 import { ErrorUtil } from '@/utils/error.util';
+import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 
 @Component({
   selector: 'app-posts',
   standalone: true,
-  imports: [CommonModule, PostCreateComponent],
+  imports: [CommonModule, PostCreateComponent, InfiniteScrollDirective],
   templateUrl: './posts.component.html',
   styleUrl: './posts.component.scss'
 })
@@ -18,14 +19,38 @@ export class PostsComponent implements OnInit {
   posts: Post[] = [];
   showErrorMessage = false;
   errors: string[] = [];
+  pageNumber = 0;
+  isLoading = false;
+  hasNextPage = false;
 
   constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
+    this.isLoading = false;
     this.showErrorMessage = false;
-    this.apiService.getPosts().subscribe(posts => {
-      this.posts = posts;
-    });
+    this.posts = [];
+    this.loadPosts();
+  }
+
+  private async loadPosts(pageNumber: number = 1) {
+    if (this.isLoading) return;
+    this.isLoading = true;
+
+    const newPagination = await lastValueFrom(this.apiService.getPosts(pageNumber));
+    this.posts = [...this.posts, ...newPagination.items];
+    this.pageNumber = newPagination.pageNumber;
+    this.hasNextPage = newPagination.hasNextPage;
+    this.isLoading = false;
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  onScroll() {
+    if (this.hasNextPage) {
+      this.loadPosts(this.pageNumber + 1);
+    }
   }
 
   onPostCreated(post: Post) {

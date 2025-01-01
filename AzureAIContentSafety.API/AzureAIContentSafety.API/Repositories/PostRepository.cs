@@ -188,14 +188,24 @@ public class PostRepository : IPostRepository
         await this.context.SaveChangesAsync();
     }
 
-    public List<PostResponse> GetAll()
+    public async Task<PaginatedList<PostResponse>> GetAll(int pageNumber, int pageSize)
     {
-        return this
-            .context.Posts.Where(p => !p.TextRequiresModeration && !p.ImageRequiresModeration)
+        var postQueryable = context
+            .Posts.Where(p => !p.TextRequiresModeration && !p.ImageRequiresModeration)
             .OrderByDescending(p => p.CreatedAt)
-            .AsNoTracking()
+            .AsNoTracking();
+
+        var count = await postQueryable.CountAsync();
+
+        var posts = await postQueryable
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .Select(p => this.mapper.Map<PostResponse>(p))
-            .ToList();
+            .ToListAsync();
+
+        var totalPages = (int)Math.Ceiling(count / (double)pageSize);
+
+        return new PaginatedList<PostResponse>(posts, pageNumber, totalPages, count);
     }
 
     public PostResponse GetById(string id)

@@ -19,7 +19,7 @@
   }
 
   img.blur {
-    filter: blur(10px);
+    filter: blur(20px);
     transition: filter 0.3s ease;
   }
 }
@@ -80,4 +80,11 @@
     height: 200px;
     border-radius: 10px;
   }
+}
+
+.btn-scroll {
+  z-index: 10;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
 }

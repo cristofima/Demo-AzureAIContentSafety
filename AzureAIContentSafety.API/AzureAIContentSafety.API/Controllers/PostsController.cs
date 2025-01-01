@@ -13,10 +13,10 @@ public class PostsController(IPostRepository postRepository) : ControllerBase
     private readonly IPostRepository postRepository = postRepository;
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<PostResponse>))]
-    public IActionResult Get()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaginatedList<PostResponse>))]
+    public async Task<IActionResult> Get(int pageNumber = 1, int pageSize = 10)
     {
-        return Ok(this.postRepository.GetAll());
+        return Ok(await this.postRepository.GetAll(pageNumber, pageSize));
     }
 
     [HttpGet("{id:guid}")]
