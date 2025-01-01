@@ -30,7 +30,7 @@
     infiniteScroll
     [infiniteScrollDistance]="1"
     [infiniteScrollThrottle]="100"
-    (scrolled)="onScroll()"
+    (scrolled)="onWindowScroll()"
   >
     <div class="row" *ngFor="let post of posts">
       <div class="col-12">
@@ -57,7 +57,7 @@
                 (click)="deletePost(post)"
                 [disabled]="post.isDeleting"
               >
-                X
+                <i class="bi-trash"></i>
               </button>
             </div>
             <div class="card-body">
@@ -100,12 +100,12 @@
       </div>
     </div>
   </div>
-
-  <button
-    *ngIf="posts.length > 0"
-    class="btn btn-primary btn-scroll"
-    (click)="scrollToTop()"
-  >
-    Go to Top
-  </button>
 </div>
+
+<button
+  *ngIf="showBottomButton"
+  class="btn btn-secondary btn-up-scroll"
+  (click)="scrollToTop()"
+>
+  <i class="bi bi-arrow-up-circle-fill"></i>
+</button>

@@ -22,6 +22,7 @@ export class PostsComponent implements OnInit {
   pageNumber = 0;
   isLoading = false;
   hasNextPage = false;
+  showBottomButton = false;
 
   constructor(private apiService: ApiService) { }
 
@@ -43,14 +44,15 @@ export class PostsComponent implements OnInit {
     this.isLoading = false;
   }
 
-  scrollToTop(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  onScroll() {
+  onWindowScroll() {
+    this.showBottomButton = ((window.document.body.scrollHeight - window.innerHeight) - window.scrollY) > 350;
     if (this.hasNextPage) {
       this.loadPosts(this.pageNumber + 1);
     }
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   onPostCreated(post: Post) {
