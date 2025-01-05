@@ -8,7 +8,6 @@ import { ErrorUtil } from '@/utils/error.util';
 
 @Component({
   selector: 'app-post-create',
-  standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './post-create.component.html',
   styleUrl: './post-create.component.scss'

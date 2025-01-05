@@ -4,13 +4,12 @@ import { Component, OnInit } from '@angular/core';
 import { Post } from '@/models/post.interface';
 import { ApiService } from '@/services/api.service';
 import { PostCreateComponent } from '../post-create/post-create.component';
-import { ErrorUtil } from '@/utils/error.util';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
+import { PostDetailsComponent } from "../post-details/post-details.component";
 
 @Component({
   selector: 'app-posts',
-  standalone: true,
-  imports: [CommonModule, PostCreateComponent, InfiniteScrollDirective],
+  imports: [CommonModule, PostCreateComponent, InfiniteScrollDirective, PostDetailsComponent],
   templateUrl: './posts.component.html',
   styleUrl: './posts.component.scss'
 })
@@ -59,10 +58,6 @@ export class PostsComponent implements OnInit {
     this.posts = [post, ...this.posts];
   }
 
-  toggleBlur(post: Post) {
-    post.imageIsBlurred = !post.imageIsBlurred;
-  }
-
   setErrors(errors: string[]) {
     this.errors = errors;
     this.showErrorMessage = this.errors.length > 0;
@@ -73,15 +68,7 @@ export class PostsComponent implements OnInit {
     this.showErrorMessage = false;
   }
 
-  async deletePost(post: Post) {
-    try {
-      post.isDeleting = true;
-      await lastValueFrom(this.apiService.deletePost(post.id));
-      this.posts = this.posts.filter(p => p.id !== post.id);
-    } catch (ex: any) {
-      this.setErrors(ErrorUtil.getErrors(ex.error.errors));
-    } finally {
-      post.isDeleting = false;
-    }
+  deletePost(post: Post) {
+    this.posts = this.posts.filter(p => p.id !== post.id);
   }
 }

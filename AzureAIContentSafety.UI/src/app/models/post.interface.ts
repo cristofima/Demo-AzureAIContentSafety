@@ -6,5 +6,4 @@ export interface Post {
   imageIsHarmful: boolean;
   imageIsBlurred: boolean;
   createdAt: Date;
-  isDeleting: boolean;
 }
